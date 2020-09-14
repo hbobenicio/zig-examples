@@ -1,19 +1,13 @@
-// $ zig build-exe --release-safe src/main.zig -lc
+// $ zig build-exe --release-safe src/main.zig 
+// $ zig build -Drelease-safe=true run
 
 const std = @import("std");
 const json = std.json;
-const Allocator = std.mem.Allocator;
 
-// const global_allocator = &std.heap.loggingAllocator(std.heap.c_allocator, std.io.getStdOut().outStream()).allocator;
+const Allocator = std.mem.Allocator;
 const global_allocator = std.heap.c_allocator;
 
-const Photo = struct {
-    id: u64,
-    albumId: u64,
-    title: []u8,
-    url: []u8,
-    thumbnailUrl: []u8,
-};
+const Photo = @import("./photo.zig").Photo;
 
 pub fn main() !void {
     try run();
@@ -49,7 +43,7 @@ fn read_json_file(alloc: *Allocator, file_path: []const u8) ![]u8 {
     const bytes_read: usize = try file.read(file_content[0..]);
     if (bytes_read != file_size) {
         std.debug.warn("error: file size ({}) and bytes read ({}) didn't match", .{file_size, bytes_read});
-        return error.FileOpenError;
+        return error.FileReadError;
     }
 
     return file_content;
