@@ -3,7 +3,7 @@
 //! Contributions are welcomed.
 
 
-/// Esc represents the Escape code.
+/// Esc represents the Ansi Escape code.
 pub const Esc: []const u8 = "\x1b";
 
 /// EscapePrefix represents the common "Esc[" escaping prefix pattern.
@@ -55,7 +55,8 @@ pub const graphics = struct {
 
     pub const attr = struct {
         // TODO namespace conflicts 
-        // pub const Reset: []const u8 = "0";
+        pub const AttrReset: []const u8 = "0";
+        
         pub const Bold: []const u8 = "1";
         pub const Dim: []const u8 = "2";
         pub const Italic: []const u8 = "3";
@@ -86,7 +87,7 @@ pub const color = struct {
         // TODO 38?
 
         // TODO Namespace conflicts
-        // pub const Reset: []const u8 = "39"; // https://github.com/chalk/ansi-styles/blob/master/index.js
+        pub const FgReset: []const u8 = "39"; // https://github.com/chalk/ansi-styles/blob/master/index.js
     };
     /// bg namespace groups all background color codes.
     pub const bg = struct {
@@ -101,7 +102,7 @@ pub const color = struct {
         // TODO 48?;
 
         // TODO Namespace conflicts
-        // pub const Reset: []const u8 = "49";
+        pub const BgReset: []const u8 = "49";
     };
     // pub const ForegroundFancyBlue: []const u8 = comptime ESC ++ "[38;5;80m";
 };
