@@ -4,9 +4,6 @@ const heap = std.heap;
 
 const ansi = @import("./ansi.zig");
 
-const Allocator = mem.Allocator;
-const FixedBufferAllocator = std.heap.FixedBufferAllocator;
-
 pub fn main() !void {
     const stdout = std.io.getStdOut();
     const w = stdout.writer();
@@ -27,12 +24,6 @@ pub fn main() !void {
     try ansi.setForegroundColor(ansi.Color.Red);
     _ = try stdout.write("red");
     try ansi.resetGraphics();
-
-    // second API (formatting style / single write)
-    // try w.print(" {}green{} ", .{
-    //     ansi.escapeSequenceGraphics(ansi.codes.color.fg.Green),
-    //     ansi.escapeSequenceGraphicsReset(),
-    // });
 
     // TODO if this buffer is shared between an expression (for example: one w.print with multuple formats),
     // then this will break.
@@ -62,9 +53,22 @@ pub fn main() !void {
     // TODO grey
     try w.print(" {}", .{ try ansi.bgBlack(&tmpBuf, "bgBlack") });
 
+    // Full customization declarative API
+    const ibmStyle = ansi.Style{
+        .fgColor = ansi.Color.Yellow,
+        .bgColor = ansi.Color.Blue,
+        .attrs = ansi.StyleAttr{
+            .bold = true,
+        },
+    };
+    try w.print("\n{}", .{ try ansi.applyStyle(&tmpBuf, ibmStyle, "IBM Style") });
+
+    // TODO full customization fluent/builder style
+
+    // TODO finish cursor implementation
     // try ansi.cursor.move(tmpBuf[0..], 0, 0);
     // try ansi.cursor.up(tmpBuf[0..], 1);
 
-    // try ansi.resetGraphics();
+    try ansi.resetGraphics();
     std.log.info("\nResetting works", .{});
 }

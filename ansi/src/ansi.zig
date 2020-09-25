@@ -28,6 +28,52 @@ pub const Color = enum {
     White,
 };
 
+pub const StyleAttr = struct {
+    bold: bool = false,
+    dim: bool = false,
+    italic: bool = false,
+    underline: bool = false,
+    inverse: bool = false,
+    hidden: bool = false,
+    strikethrough: bool = false,
+};
+
+pub const Style = struct {
+    fgColor: ?Color = null,
+    bgColor: ?Color = null,
+    attrs: ?StyleAttr = null,
+
+    // TODO builder API
+};
+
+// TODO fgStyle and bgStyle may become just one function with an enum parameter for Fg vs Bg
+pub fn applyStyle(buf: []u8, style: Style, str: []const u8) std.fmt.BufPrintError![]u8 {
+    // TODO how to dynamically create the formatting string, if it must be comptime?
+    // Can we afforce allocations? or is it a fate of life?!
+    // TODO can recursion save us!? (we got to define fg and/or bg and/or attrs)
+    if (style.fgColor) |fgColor| {
+        if (style.bgColor) |bgColor| {
+            return fmt.bufPrint(buf, "{}{}{}{}{}{}{}{}{}{}{}{}{}", .{
+                codes.EscapePrefix,
+                foregroundColorEscapeCode(fgColor),
+                codes.graphics.SetModeSuffix,
+                codes.EscapePrefix,
+                backgroundColorEscapeCode(bgColor),
+                codes.graphics.SetModeSuffix,
+                codes.EscapePrefix,
+                // backgroundColorEscapeCode(bgColor),
+                "1;4", // TODO create styleAttrToCode function
+                codes.graphics.SetModeSuffix,
+                str,
+                codes.EscapePrefix,
+                codes.Reset,
+                codes.graphics.SetModeSuffix,
+            });
+        }
+    }
+    return buf;
+}
+
 // TODO fgStyle and bgStyle may become just one function with an enum parameter for Fg vs Bg
 pub fn fgStyle(buf: []u8, colorCode: []const u8, str: []const u8) std.fmt.BufPrintError![]u8 {
     return fmt.bufPrint(buf, "{}{}{}{}{}{}{}", .{
@@ -200,5 +246,44 @@ pub inline fn escapeSequenceGraphicsReset() []const u8 {
     return escapeSequenceGraphics(codes.Reset);
 }
 
-// TODO add more escape sequences
-// http://ascii-table.com/ansi-escape-sequences.php
+test "foreground colors" {
+    const w = std.io.getStdErr().writer();
+
+    try setForegroundColor(Color.Red);
+    _ = try stdout.write("red");
+    try resetGraphics();
+
+    // TODO if this buffer is shared between an expression (for example: one w.print with multuple formats),
+    // then this will break.
+    var tmpBuf: [100]u8 = undefined;
+
+    try w.print(" {}", .{ try green(&tmpBuf, "green") });
+    try w.print(" {}", .{ try yellow(&tmpBuf, "yellow") });
+    try w.print(" {}", .{ try blue(&tmpBuf, "blue") });
+    try w.print(" {}", .{ try magenta(&tmpBuf, "magenta") });
+    try w.print(" {}", .{ try cyan(&tmpBuf, "cyan") });
+    try w.print(" {}", .{ try white(&tmpBuf, "white") });
+    // TODO grey
+    try w.print(" {}", .{ try black(&tmpBuf, "black") });
+}
+
+test "background colors" {
+    const w = std.io.getStdErr().writer();
+
+    try setBackgroundColor(Color.Red);
+    _ = try stdout.write("red");
+    try resetGraphics();
+
+    // TODO if this buffer is shared between an expression (for example: one w.print with multuple formats),
+    // then this will break.
+    var tmpBuf: [100]u8 = undefined;
+
+    try w.print(" {}", .{ try bgGreen(&tmpBuf, "bgGreen") });
+    try w.print(" {}", .{ try bgYellow(&tmpBuf, "bgYellow") });
+    try w.print(" {}", .{ try bgBlue(&tmpBuf, "bgBlue") });
+    try w.print(" {}", .{ try bgMagenta(&tmpBuf, "bgMagenta") });
+    try w.print(" {}", .{ try bgCyan(&tmpBuf, "bgCyan") });
+    try w.print(" {}", .{ try bgWhite(&tmpBuf, "bgWhite") });
+    // TODO grey
+    try w.print(" {}", .{ try bgBlack(&tmpBuf, "bgBlack") });
+}

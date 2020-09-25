@@ -21,4 +21,9 @@ pub fn build(b: *Builder) void {
 
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
+
+    // const test_step = b.step("test", "Run all tests");
+    // test_step.dependOn(&exe.step);
+    // const ansi_test = b.addTest("./src/ansi.zig");
+    // test_step.dependencies.append(ansi_test);
 }
