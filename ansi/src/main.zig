@@ -54,14 +54,13 @@ pub fn main() !void {
     try w.print(" {}", .{ try ansi.bgBlack(&tmpBuf, "bgBlack") });
 
     // Full customization declarative API
-    const ibmStyle = ansi.Style{
-        .fgColor = ansi.Color.Yellow,
-        .bgColor = ansi.Color.Blue,
-        .attrs = ansi.StyleAttr{
-            .bold = true,
-        },
+    const ibmStyle: ansi.Style = .{
+        .fgColor = ansi.Color.Yellow, // just .Yellow also works
+        .bgColor = ansi.Color.Blue, // just .Blue also works
+        .bold = true,
+        .underline = true,
     };
-    try w.print("\n{}", .{ try ansi.applyStyle(&tmpBuf, ibmStyle, "IBM Style") });
+    try w.print("\n{}", .{ try ansi.fmtStyle(&tmpBuf, ibmStyle, "IBM Style") });
 
     // TODO full customization fluent/builder style
 
