@@ -22,7 +22,7 @@ pub export fn main(argc: c_int, argv: [*c][*c]u8) i32 {
     // pub extern fn g_signal_connect_closure(instance: gpointer, detailed_signal: [*c]const gchar, closure: ?*GClosure, after: gboolean) gulong;
     // pub extern fn g_signal_connect_data(instance: gpointer, detailed_signal: [*c]const gchar, c_handler: GCallback, data: gpointer, destroy_data: GClosureNotify, connect_flags: GConnectFlags) gulong;
 
-    //g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+    g_signal_connect(app, "activate", @ptrCast(?fn (?*GtkApplication, gpointer) void, activate), null);
     // g_signal_connect(app, "activate", @ptrCast(fn() callconv(.C) void, activate), null);
 
     // G_APPLICATION(@ptrCast([*c]GApplication, app)),
@@ -31,7 +31,7 @@ pub export fn main(argc: c_int, argv: [*c][*c]u8) i32 {
     return g_application_run(@ptrCast([*c]GApplication, app), argc, argv);
 }
 
-export fn activate(app: [*c]GtkApplication, user_data: [*c]gpointer) callconv(.C) void {
+export fn activate(app: ?*GtkApplication, user_data: gpointer) callconv(.C) void {
     std.debug.warn("activate called!\n", .{});
 }
 
