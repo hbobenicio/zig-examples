@@ -11,13 +11,22 @@ pub fn build(b: *Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const dayOneExe = b.addExecutable("day-01", "src/01/main.zig");
-    dayOneExe.setTarget(target);
-    dayOneExe.setBuildMode(mode);
+    const day_one_exe = b.addExecutable("day-01", "src/01/main.zig");
+    day_one_exe.setTarget(target);
+    day_one_exe.setBuildMode(mode);
+    day_one_exe.install();
 
-    const dayTwoExe = b.addExecutable("day-02", "src/02/main.zig");
-    dayTwoExe.setTarget(target);
-    dayTwoExe.setBuildMode(mode);
+    const run_cmd = day_one_exe.run();
+    run_cmd.step.dependOn(b.getInstallStep());
+    if (b.args) |args| {
+        run_cmd.addArgs(args);
+    }
 
-    
+    const day_two_exe = b.addExecutable("day-02", "src/02/main.zig");
+    day_two_exe.setTarget(target);
+    day_two_exe.setBuildMode(mode);
+    day_two_exe.install();
+
+    // const run_step = b.step("run", "Run the app");
+    // run_step.dependOn(&run_cmd.step);
 }

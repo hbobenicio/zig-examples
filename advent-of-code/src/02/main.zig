@@ -4,7 +4,7 @@ const ArrayList = std.ArrayList;
 
 pub fn main() !void {
 
-    const solution: u32 = blk: {
+    const solution: u64 = blk: {
         // var input_buffer: [4096 * @sizeOf(u32)]u8 = undefined;
         // var allocator: *Allocator = &std.heap.FixedBufferAllocator.init(&input_buffer).allocator;
         const allocator: *Allocator = std.heap.page_allocator;
@@ -26,46 +26,44 @@ pub fn main() !void {
     try stdout.print("{}\n", .{ solution });
 }
 
-fn allocator_from_env() *Allocator {
-    const env_allocator = std.os.getenv("ALLOCATOR");
-}
-
-fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !u32 {
+fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !u64 {
     var line_buffer = work_buffer;
 
-    var numbers: ArrayList(u32) = ArrayList(u32).init(alloc);
+    var numbers: ArrayList(u64) = ArrayList(u64).init(alloc);
     defer numbers.deinit();
 
     while (true) {
-        const maybe_num: ?u32 = try nextInt(reader, line_buffer);
+        const maybe_num: ?u64 = try nextInt(reader, line_buffer);
         if (maybe_num == null) {
-            return error.SolutionNotFound;
+            return error.NoSolutionFound;
         }
 
-        const num: u32 = maybe_num.?;
+        const num: u64 = maybe_num.?;
         
-        var i: u32 = 0;
-        while (i < numbers.items.len - 1) {
-            var j: u32 = i + 1;
+        var i: u64 = 0;
+        while (numbers.items.len > 0 and i < numbers.items.len - 1) {
+            var j: u64 = i + 1;
             while (j < numbers.items.len) {
-                const x: u32 = numbers.items[i];
-                const y: u32 = numbers.items[j];
+                const x: u64 = numbers.items[i];
+                const y: u64 = numbers.items[j];
 
                 if (x + y + num == 2020) {
                     return x * y * num;
                 }
+                j += 1;
             }
+            i += 1;
         }
 
         try numbers.append(num);
     }
 }
 
-fn nextInt(reader: anytype, workBuf: []u8) !?u32 {
+fn nextInt(reader: anytype, workBuf: []u8) !?u64 {
     const line: ?[]u8 = try reader.readUntilDelimiterOrEof(workBuf, '\n');
     if (line == null) {
         return null;
     }
 
-    return try std.fmt.parseInt(u32, line.?, 10);
+    return try std.fmt.parseInt(u64, line.?, 10);
 }

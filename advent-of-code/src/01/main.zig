@@ -39,7 +39,7 @@ fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !u32 {
     while (true) {
         const maybe_num: ?u32 = try nextInt(reader, line_buffer);
         if (maybe_num == null) {
-            return error.SolutionNotFound;
+            return error.NoSolutionFound;
         }
 
         const num: u32 = maybe_num.?;
