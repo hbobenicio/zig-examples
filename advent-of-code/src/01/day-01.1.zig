@@ -26,10 +26,6 @@ pub fn main() !void {
     try stdout.print("{}\n", .{ solution });
 }
 
-fn allocator_from_env() *Allocator {
-    const env_allocator = std.os.getenv("ALLOCATOR");
-}
-
 fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !u32 {
     var line_buffer = work_buffer;
 
