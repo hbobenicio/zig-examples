@@ -1,25 +1,11 @@
 const std = @import("std");
-const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
 
 pub fn main() !void {
-
     const solution: usize = blk: {
-        // var input_buffer: [4096 * @sizeOf(u32)]u8 = undefined;
-        // var allocator: *Allocator = &std.heap.FixedBufferAllocator.init(&input_buffer).allocator;
-        var allocator: *Allocator = std.heap.page_allocator;
-
-        // Global allocator would be just a simple arena allocator
-        // Considering a FixedBufferAllocator instead of a page_allocator if there're not many input numbers
-        var arena = std.heap.ArenaAllocator.init(allocator);
-        defer arena.deinit();
-        const global_allocator: *Allocator = &arena.allocator;
-
-        // Stdin handle and temporary buffer
         var work_buffer: [100]u8 = undefined;
         const stdin = std.io.getStdIn().reader();
 
-        break :blk try solve(global_allocator, stdin, &work_buffer);
+        break :blk try solve(stdin, &work_buffer);
     };
     
     const stdout = std.io.getStdOut().writer();
@@ -27,32 +13,37 @@ pub fn main() !void {
 }
 
 const InputData = struct {
-    min: usize,
-    max: usize,
+    pos1: usize,
+    pos2: usize,
     letter: u8,
     password: []const u8,
 };
 
-fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !usize {
+fn solve(reader: anytype, work_buffer: []u8) !usize {
     var line_buffer = work_buffer;
 
     var valid_password_count: usize = 0;
 
     while (true) {
-        const maybe_line: ?[]u8 = try reader.readUntilDelimiterOrEof(work_buffer, '\n');
+        const maybe_line: ?[]u8 = try reader.readUntilDelimiterOrEof(line_buffer, '\n');
         if (maybe_line == null) {
             return valid_password_count;
         }
 
         const input_data: InputData = try parseLine(maybe_line.?);
 
-        var occurrencies_count: usize = 0;
-        for (input_data.password) |c| {
-            if (c == input_data.letter) {
-                occurrencies_count += 1;
-            }
+        const c1: u8 = input_data.password[input_data.pos1 - 1];
+        const c2: u8 = input_data.password[input_data.pos2 - 1];
+
+        var match_count: usize = 0;
+        if (c1 == input_data.letter) {
+            match_count += 1;
         }
-        if (input_data.min <= occurrencies_count and occurrencies_count <= input_data.max) {
+        if (c2 == input_data.letter) {
+            match_count += 1;
+        }
+
+        if (match_count == 1) {
             valid_password_count += 1;
         }
     }
@@ -61,10 +52,10 @@ fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !usize {
 fn parseLine(line: []const u8) !InputData {
     var offset: usize = 0;
 
-    const min: usize = try parseInt(usize, line, &offset);
+    const pos1: usize = try parseInt(usize, line, &offset);
     skip(1, line, &offset); // -
 
-    const max: usize = try parseInt(usize, line, &offset);
+    const pos2: usize = try parseInt(usize, line, &offset);
     skip(1, line, &offset); // ' '
 
     const letter: u8 = try parseLetter(line, &offset);
@@ -74,8 +65,8 @@ fn parseLine(line: []const u8) !InputData {
     const password: []const u8 = line[offset..];
 
     return InputData {
-        .min = min,
-        .max = max,
+        .pos1 = pos1,
+        .pos2 = pos2,
         .letter = letter,
         .password = password,
     };

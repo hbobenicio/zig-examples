@@ -1,25 +1,11 @@
 const std = @import("std");
-const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
 
 pub fn main() !void {
-
     const solution: usize = blk: {
-        // var input_buffer: [4096 * @sizeOf(u32)]u8 = undefined;
-        // var allocator: *Allocator = &std.heap.FixedBufferAllocator.init(&input_buffer).allocator;
-        var allocator: *Allocator = std.heap.page_allocator;
-
-        // Global allocator would be just a simple arena allocator
-        // Considering a FixedBufferAllocator instead of a page_allocator if there're not many input numbers
-        var arena = std.heap.ArenaAllocator.init(allocator);
-        defer arena.deinit();
-        const global_allocator: *Allocator = &arena.allocator;
-
-        // Stdin handle and temporary buffer
         var work_buffer: [100]u8 = undefined;
         const stdin = std.io.getStdIn().reader();
 
-        break :blk try solve(global_allocator, stdin, &work_buffer);
+        break :blk try solve(stdin, &work_buffer);
     };
     
     const stdout = std.io.getStdOut().writer();
@@ -33,13 +19,13 @@ const InputData = struct {
     password: []const u8,
 };
 
-fn solve(alloc: *Allocator, reader: anytype, work_buffer: []u8) !usize {
+fn solve(reader: anytype, work_buffer: []u8) !usize {
     var line_buffer = work_buffer;
 
     var valid_password_count: usize = 0;
 
     while (true) {
-        const maybe_line: ?[]u8 = try reader.readUntilDelimiterOrEof(work_buffer, '\n');
+        const maybe_line: ?[]u8 = try reader.readUntilDelimiterOrEof(line_buffer, '\n');
         if (maybe_line == null) {
             return valid_password_count;
         }
