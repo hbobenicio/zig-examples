@@ -12,6 +12,7 @@ pub fn build(b: *Builder) void {
     _ = addDay(b, target, mode, "day-02.2", "src/02/day-02.2.zig");
     _ = addDay(b, target, mode, "day-03.1", "src/03/day-03.1.zig");
     _ = addDay(b, target, mode, "day-03.2", "src/03/day-03.2.zig");
+    _ = addDay(b, target, mode, "day-04.1", "src/04/day-04.1.zig");
 }
 
 fn addDay(b: *Builder, target: anytype, mode: std.builtin.Mode, target_name: []const u8, source: []const u8) *LibExeObjStep {
