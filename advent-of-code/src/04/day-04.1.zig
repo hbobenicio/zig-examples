@@ -4,6 +4,7 @@ const ArrayList = std.ArrayList;
 const print = std.debug.print;
 
 const Tokenizer = @import("./Tokenizer.zig").Tokenizer;
+const PassportParser = @import("./PassportParser.zig").PassportParser;
 
 pub fn main() !void {
     const solution: usize = blk: {
@@ -26,6 +27,15 @@ pub fn main() !void {
 
 fn solve(alloc: *Allocator, input: []const u8) !usize {
     var valid_count: usize = 0;
+
+    var tokenizer = try Tokenizer.init(alloc, input);
+    defer tokenizer.deinit();
+
+    // TODO change this to user PassportParser
+    // TODO implement solve as couting valid passports with this simple logic:
+    //     for (passports)|p| if (p.valid()) valid_count += 1;
+    try tokenizer.scan();
+    tokenizer.printTokens();
 
     var record_lines = try ArrayList([]const u8).initCapacity(alloc, 4);
     defer record_lines.deinit();
