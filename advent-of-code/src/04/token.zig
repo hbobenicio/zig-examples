@@ -67,4 +67,7 @@ pub const Token = struct {
             .len = lexeme.len,
         };
     }
+    pub inline fn is_eof(self: *@This()) bool {
+        return self.kind == TokenKind.eof;
+    }
 };

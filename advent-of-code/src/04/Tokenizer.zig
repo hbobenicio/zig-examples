@@ -54,7 +54,7 @@ pub const Tokenizer = struct {
         self.tokens.deinit();
     }
 
-    pub fn printTokens(self: *@This()) void {
+    pub fn printTokens(self: *const @This()) void {
         for (self.tokens.items) |tok| {
             switch (tok.kind) {
                 TokenKind.key => print("KEY({}) ", .{tok.lexeme}),
@@ -138,17 +138,17 @@ pub const Tokenizer = struct {
         self.mode = TokenizerMode.scanning_key;
     }
 
-    fn peek(self: *@This(), from: usize, n: usize) []const u8 {
+    fn peek(self: *const @This(), from: usize, n: usize) []const u8 {
         const begin = if (!self.overflows(from)) from else self.input.len;
         const end = if (!self.overflows(from + n)) from + n else self.input.len;
         return self.input[begin..end];
     }
 
-    inline fn overflows(self: *@This(), offset: usize) bool {
+    inline fn overflows(self: *const @This(), offset: usize) bool {
         return offset >= self.input.len;
     }
 
-    inline fn eof(self: *@This()) bool {
+    inline fn eof(self: *const @This()) bool {
         return self.overflows(self.pos);
     }
 };
